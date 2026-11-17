@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="orange">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Britemakers ERP</title>
+<meta name="description" content="Britemakers ERP — demo command centre for a premium auto-detailing network: job cards, bays, warranties, inventory and billing.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23f25c05'/%3E%3Ctext x='32' y='43' font-family='Impact,Arial Narrow,sans-serif' font-style='italic' font-weight='800' font-size='34' text-anchor='middle' fill='%230b0603'%3EBM%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
+<script>
+  /* apply saved theme before first paint (no flash) */
+  (function () {
+    try {
+      var g = function (k, d) { var v = localStorage.getItem('bm.' + k); return v === null ? d : JSON.parse(v); };
+      var t = g('theme', 'dark'), r = document.documentElement;
+      if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      r.setAttribute('data-theme', t); r.setAttribute('data-accent', g('accent', 'orange')); r.setAttribute('data-density', g('density', 'cozy'));
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="bm-gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".3"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/>
+    </linearGradient>
+  </defs>
+</svg>
+<div class="app" id="app"></div>
+<div id="overlays"></div>
+<noscript><p style="padding:40px;color:#fff">Britemakers ERP is a front-end demo and needs JavaScript enabled.</p></noscript>
+
+<script src="assets/js/core.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/ui.js"></script>
+<script src="assets/js/pages/dashboard.js"></script>
+<script src="assets/js/pages/jobs.js"></script>
+<script src="assets/js/pages/schedule.js"></script>
+<script src="assets/js/pages/customers.js"></script>
+<script src="assets/js/pages/warranty.js"></script>
+<script src="assets/js/pages/leads.js"></script>
+<script src="assets/js/pages/services.js"></script>
+<script src="assets/js/pages/invoices.js"></script>
+<script src="assets/js/pages/inventory.js"></script>
+<script src="assets/js/pages/team.js"></script>
+<script src="assets/js/pages/branches.js"></script>
+<script src="assets/js/pages/reports.js"></script>
+<script src="assets/js/pages/settings.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
