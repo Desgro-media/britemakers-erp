@@ -104,6 +104,15 @@
     ui.toast(id === 'all' ? 'Showing all 3 branches' : `Showing ${D.branchById[id].name} branch`, { icon: 'pin' });
   };
 
+  /* ---------- responsive tables: copy each column heading onto its cells so phones can show them as labelled cards ---------- */
+  function labelTables(root) {
+    root.querySelectorAll('table.tbl').forEach((t) => {
+      t.classList.toggle('rwd', !t.classList.contains('keep'));
+      const heads = [...t.querySelectorAll('thead th')].map((h) => h.textContent.trim());
+      t.querySelectorAll('tbody tr').forEach((tr) => [...tr.children].forEach((td, i) => { if (td.colSpan <= 1) td.setAttribute('data-label', heads[i] || ''); }));
+    });
+  }
+
   /* ---------- router ---------- */
   let current = null;
   function render(keepScroll) {
@@ -116,6 +125,7 @@
     if (!keepScroll) { root.classList.remove('enter'); void root.offsetWidth; root.classList.add('enter'); }
     current = key;
     if (page.mount) page.mount(root);
+    labelTables(root);
     ui.countUp(root);
     $$('.nav-item').forEach((a) => { const on = a.dataset.id === key; a.classList.toggle('active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     $('#crumb').textContent = page.title;
@@ -131,6 +141,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     mountShell();
     render(false);
+    let queued = false;   // search/filter boxes repaint table bodies — keep labels in sync
+    new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; labelTables($('#page')); }); }).observe($('#page'), { childList: true, subtree: true });
     // let the splash-free first paint settle, then a gentle hint for the command palette
     setTimeout(() => ui.toast('Welcome back, Nikhil', { sub: 'Demo workspace · press Ctrl+K to search anything', icon: 'sparkles', ms: 4200 }), 900);
   });

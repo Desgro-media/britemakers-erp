@@ -132,7 +132,7 @@
       </section>
 
       <div class="filters" style="margin:26px 0 16px;justify-content:space-between">
-        <div><div class="card-t" style="font-size:18px">Performance</div><div class="card-s">${esc(S.branch === 'all' ? 'All branches' : D.branchById[S.branch].name)} · ${st.nice}</div></div>
+        <div><div class="card-t" style="font-size:16px">Performance</div><div class="card-s">${esc(S.branch === 'all' ? 'All branches' : D.branchById[S.branch].name)} · ${st.nice}</div></div>
         <div class="seg" role="group" aria-label="Date range">${RANGES.map((r) => `<button class="${S.range === r[0] ? 'on' : ''}" data-action="range" data-r="${r[0]}">${r[1]}</button>`).join('')}</div>
       </div>
 
@@ -140,13 +140,13 @@
         <div class="c3">${ui.kpi({ icon: 'rupee', label: 'Revenue', count: st.cur, fmt: 'inrC', delta: st.dRev, cap: `vs previous ${st.nice.replace('last ', '')}`, spark: C.spark(sparkVals) })}</div>
         <div class="c3">${ui.kpi({ icon: 'jobs', label: 'Jobs completed', count: st.jobsNow, fmt: 'num', delta: st.dJobs, cap: `across ${ids.length} branch${ids.length > 1 ? 'es' : ''}`, spark: C.spark(sparkVals.map((v, i) => v * (0.9 + (i % 4) * 0.04)), { color: 'var(--c2)' }) })}</div>
         <div class="c3">${ui.kpi({ icon: 'receipt', label: 'Average ticket', count: st.ticket, fmt: 'inr', delta: st.dTicket, cap: 'incl. add-ons, excl. GST', spark: C.spark(sparkVals.map((v, i) => 1 + Math.sin(i / 2) * 0.06 + i * 0.008), { color: 'var(--c3)' }) })}</div>
-        <div class="c3">${ui.kpi({ icon: 'gauge', label: 'Bay utilisation', html: `<span data-count="${st.util}" data-fmt="int">0</span><small>%</small>`, cap: `${st.inBay} of ${st.bays} bays occupied`, ring: C.ring(st.util, { size: 62, stroke: 7 }) })}</div>
+        <div class="c3">${ui.kpi({ icon: 'gauge', label: 'Bay utilisation', html: `<span data-count="${st.util}" data-fmt="int">0</span><small>%</small>`, cap: `${st.inBay} of ${st.bays} bays occupied`, ring: C.ring(st.util, { size: 50, stroke: 6 }) })}</div>
 
         <div class="card c8"><div class="card-h"><div><div class="card-t">Revenue vs target</div><div class="card-s">Completed periods only, ${st.nice} · target = smoothed run-rate +6%</div></div></div><div id="revChart"></div></div>
-        <div class="card c4"><div class="card-h"><div><div class="card-t">Where the money comes from</div><div class="card-s">Revenue by service line</div></div></div>${C.donut(mix, { size: 168, thick: 20, fmt: inrC, top: inrC(series.total), sub: 'total revenue', label: 'Revenue by service line' })}</div>
+        <div class="card c4 w4"><div class="card-h"><div><div class="card-t">Where the money comes from</div><div class="card-s">Revenue by service line</div></div></div>${C.donut(mix, { size: 146, thick: 18, fmt: inrC, top: inrC(series.total), sub: 'total revenue', label: 'Revenue by service line' })}</div>
 
         <div class="card c8"><div class="card-h"><div><div class="card-t">Live bay board</div><div class="card-s">${bb.total} vehicles being worked on right now${S.branch === 'all' && bb.total > 8 ? ' · showing 8' : ''}</div></div><a class="link" href="#/jobs">Open work board ${BM.icon('arrowR', 14)}</a></div><div class="bays">${bb.html || ui.empty('car', 'No vehicles on the bays')}</div></div>
-        <div class="card c4"><div class="card-h"><div><div class="card-t">Deliveries &amp; handovers</div><div class="card-s">Next out of the door</div></div></div>
+        <div class="card c4 w4"><div class="card-h"><div><div class="card-t">Deliveries &amp; handovers</div><div class="card-s">Next out of the door</div></div></div>
           <div class="feed">${due.map((j) => { const v = D.vehById[j.vehId]; return `<div class="feed-i" style="align-items:center"><span class="vtile" style="width:54px;height:38px">${BM.car(v.shape, v.color)}</span><div class="grow" style="min-width:0"><b class="ellipsis" style="display:block">${esc(v.make)} ${esc(v.model)}</b><small>${esc(D.custById[j.custId].name)} · ${until(j.eta)}</small></div>${ui.statusBadge(j.status)}</div>`; }).join('') || ui.empty('truck', 'Nothing queued')}</div>
           ${delivered.length ? `<div class="sec-t" style="margin-top:20px">Delivered today · ${deliveredToday}</div><div class="feed">${delivered.map((j) => { const v = D.vehById[j.vehId]; return `<div class="feed-i" style="align-items:center"><span class="vtile" style="width:54px;height:38px">${BM.car(v.shape, v.color)}</span><div class="grow" style="min-width:0"><b class="ellipsis" style="display:block">${esc(v.make)} ${esc(v.model)}</b><small>${esc(D.custById[j.custId].name)} · ${fmtTime(j.deliveredAt)}</small></div>${BM.icon('check', 16)}</div>`; }).join('')}</div>` : ''}</div>
 
@@ -164,8 +164,8 @@
     },
     mount() {
       const s = D.series(S.range), ids = BM.sel.branchIds();
-      C.line($('#revChart'), { labels: s.labels, tipTitle: (i) => s.titles[i], tipSub: (i) => s.subs[i], height: 330, fmt: inrC, axFmt: inrC, label: 'Revenue versus target', series: [{ name: 'Revenue', color: 'var(--c1)', data: s.totals, area: true }, { name: 'Target', color: 'var(--muted)', data: s.targets, dash: true }] });
-      C.bars($('#brChart'), { labels: s.labels, tipTitle: (i) => s.titles[i], height: 250, stacked: true, fmt: inrC, axFmt: inrC, label: 'Revenue by branch', series: ids.map((b) => ({ name: D.branchById[b].name, color: D.branchById[b].color, data: s.byBranch[b] })) });
+      C.line($('#revChart'), { labels: s.labels, tipTitle: (i) => s.titles[i], tipSub: (i) => s.subs[i], height: 290, fmt: inrC, axFmt: inrC, label: 'Revenue versus target', series: [{ name: 'Revenue', color: 'var(--c1)', data: s.totals, area: true }, { name: 'Target', color: 'var(--muted)', data: s.targets, dash: true }] });
+      C.bars($('#brChart'), { labels: s.labels, tipTitle: (i) => s.titles[i], height: 220, stacked: true, fmt: inrC, axFmt: inrC, label: 'Revenue by branch', series: ids.map((b) => ({ name: D.branchById[b].name, color: D.branchById[b].color, data: s.byBranch[b] })) });
     },
   };
   const $ = BM.$;

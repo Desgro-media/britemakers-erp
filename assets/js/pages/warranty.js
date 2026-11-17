@@ -42,7 +42,7 @@
         <div class="card stat"><small>Check-up show-up rate</small><b>78%</b><span style="color:var(--ok-ink)">+6 pts with reminders</span></div>
       </div>
       <div class="grid">
-        <div class="card c5"><div class="card-h"><div><div class="card-t">Check-ups next 8 weeks</div><div class="card-s">Scheduled free care visits</div></div></div><div id="wChart"></div></div>
+        <div class="card c5 w4"><div class="card-h"><div><div class="card-t">Check-ups next 8 weeks</div><div class="card-s">Scheduled free care visits</div></div></div><div id="wChart"></div></div>
         <div class="card c7"><div class="card-h"><div><div class="card-t">Open claims</div><div class="card-s">${claims.length ? 'Awaiting a decision' : 'Nothing open'}</div></div></div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px">${claims.slice(0, 4).map((w) => `<div class="card" style="background:var(--surface-2);box-shadow:none;padding:12px 14px"><div class="row between"><b style="font-size:13px">${esc(w.claim.issue)}</b>${ui.badge('Open', 'bad')}</div><div class="muted" style="font-size:12px;margin:3px 0 10px">${esc(D.custById[w.custId].name)} · ${esc(D.vehById[w.vehId].make)} ${esc(D.vehById[w.vehId].model)} · opened ${fmtDate(w.claim.opened)}</div><div class="row"><button class="btn btn-sm btn-soft" data-action="resolveClaim" data-id="${w.id}">${BM.icon('check', 14)}Resolve</button><button class="btn btn-sm btn-ghost" data-action="openCert" data-id="${w.id}">Certificate</button></div></div>`).join('') || ui.empty('shield', 'No open claims')}</div></div>
         <div class="card c12 flush"><div class="card-h pad"><div><div class="card-t">Warranty register</div><div class="card-s">Every certificate issued by the network</div></div></div>
@@ -58,7 +58,7 @@
       $('#wMore').addEventListener('click', () => { limit += 14; paint(); });
       const all = BM.sel.warranties();
       const wk = Array.from({ length: 8 }, (_, i) => { const a = new Date(D.TODAY); a.setDate(a.getDate() + i * 7); const b = new Date(a); b.setDate(b.getDate() + 7); return { label: fmtDate(a), n: all.filter((w) => w.nextCheck >= a && w.nextCheck < b).length }; });
-      C.bars($('#wChart'), { labels: wk.map((w) => w.label), tipTitle: (i) => 'Week of ' + wk[i].label, height: 200, fmt: (v) => v + ' check-ups', axFmt: (v) => String(v), valueLabels: true, label: 'Check-ups per week', xw: 52, left: 34, series: [{ name: 'Check-ups', color: 'var(--c3)', data: wk.map((w) => w.n) }] });
+      C.bars($('#wChart'), { labels: wk.map((w) => w.label), tipTitle: (i) => 'Week of ' + wk[i].label, height: 180, fmt: (v) => v + ' check-ups', axFmt: (v) => String(v), valueLabels: true, label: 'Check-ups per week', xw: 52, left: 34, series: [{ name: 'Check-ups', color: 'var(--c3)', data: wk.map((w) => w.n) }] });
     },
   };
 

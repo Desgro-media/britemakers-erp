@@ -13,7 +13,7 @@
   const rows = (l) => l.map((c) => `<tr class="click" data-action="openCustomer" data-id="${c.id}">
     <td><div class="cell">${BM.avatar(c.name, 40)}<div style="min-width:0"><b class="ellipsis">${esc(c.name)}</b><small>${esc(c.city)}${c.kind === 'fleet' ? ' · Corporate' : ''}</small></div></div></td>
     <td><div class="cell">${c.vehicles.slice(0, 2).map(ui.vehTile).join('')}${c.vehicles.length > 2 ? `<span class="tag">+${c.vehicles.length - 2}</span>` : ''}<div style="min-width:0"><b class="ellipsis">${esc(c.vehicles[0].make)} ${esc(c.vehicles[0].model)}</b><small>${esc(c.vehicles[0].plate)}</small></div></div></td>
-    <td>${ui.tier(c.tier)}</td><td class="num">${c.visits}</td><td class="nowrap">${c.last ? fmtDateS(c.last) : '—'}</td><td class="r num"><b>${inr(c.ltv)}</b></td><td class="r">${BM.icon('right', 16)}</td></tr>`).join('');
+    <td>${ui.tier(c.tier)}</td><td class="num">${c.visits}</td><td class="nowrap">${c.last ? fmtDateS(c.last) : '—'}</td><td class="r num"><b>${inr(c.ltv)}</b></td><td class="r chev">${BM.icon('right', 16)}</td></tr>`).join('');
 
   BM.pages.customers = {
     title: 'Customers',

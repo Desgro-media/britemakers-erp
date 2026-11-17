@@ -17,6 +17,18 @@ A front-end-only demo of an ERP / command centre for **Britemakers** (premium au
 
 Global: branch switcher (filters every page), `Ctrl+K` command palette, notifications, light/dark/system theme, 4 accent colours, compact density, responsive down to phones.
 
+## Responsive behaviour
+
+Compact scale on desktop, tested with no horizontal overflow from 320px to 1920px.
+
+| Width | What changes |
+|---|---|
+| ≤ 1180px | KPI cards go 2-up; wide + narrow card pairs stack |
+| ≤ 1024px | Sidebar becomes a slide-in menu (hamburger) |
+| ≤ 820px | Data tables become labelled cards (labels are copied from the column headings) |
+| ≤ 720px | Job/lead boards swipe sideways, bay tiles go 2-up, modals become bottom sheets, drawers go full width, filters scroll horizontally, inputs use 16px text so iOS doesn't zoom |
+| ≤ 380px | Extra-tight spacing and single-column KPIs |
+
 ## Interactions that actually work (in memory)
 
 Create job cards, customers, leads, appointments, purchase orders and invoices · drag jobs and leads between stages · tick work checklists (progress updates) · record payments · resolve warranty claims · toggle settings. State resets on reload (theme/branch/accent persist in `localStorage`).

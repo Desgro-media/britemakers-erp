@@ -91,7 +91,10 @@
       series.forEach((s, si) => { if (s.area) svg += `<linearGradient id="g${id}_${si}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:${s.color};stop-opacity:.22"/><stop offset="1" style="stop-color:${s.color};stop-opacity:.02"/></linearGradient>`; });
       svg += '</defs>';
       ticks.forEach((v) => { svg += `<line class="${v === 0 ? 'base' : 'gl'}" x1="${m.l}" x2="${W - m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text class="ax" x="${m.l - 10}" y="${Y(v) + 4}" text-anchor="end">${esc(axFmt(v))}</text>`; });
-      labels.forEach((l, i) => { if (i % every === 0 || i === n - 1 && n - 1 - (Math.floor((n - 1) / every) * every) >= every * 0.6) svg += `<text class="ax" x="${X(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}">${esc(l)}</text>`; });
+      /* x labels: every k-th, always ending on the latest point; drop the neighbour if the two would touch */
+      const lab = []; for (let i = 0; i < n; i += every) lab.push(i);
+      if (lab[lab.length - 1] !== n - 1) { if (lab.length > 1 && (n - 1 - lab[lab.length - 1]) * (iw / Math.max(1, n - 1)) < (o.xw || 64) * 0.9) lab.pop(); lab.push(n - 1); }
+      lab.forEach((i) => { svg += `<text class="ax" x="${X(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}">${esc(labels[i])}</text>`; });
       series.forEach((s, si) => {
         const pts = s.data.map((v, i) => [X(i), Y(v)]), d = monotone(pts);
         if (s.area) svg += `<path d="${d}L${X(n - 1)},${Y(0)}L${X(0)},${Y(0)}Z" fill="url(#g${id}_${si})"/>`;
