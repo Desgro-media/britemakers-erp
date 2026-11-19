@@ -110,24 +110,23 @@
       const sparkVals = D.daily.slice(-14).map((d) => ids.reduce((t, b) => t + d[b], 0));
       const now = new Date();
       const hello = now.getHours() < 12 ? 'Good morning' : now.getHours() < 17 ? 'Good afternoon' : 'Good evening';
+      const scope = ids.length === 1 ? D.branchById[ids[0]].name : `${ids.length} branches`, where = ids.length === 1 ? `at ${scope}` : `across ${scope}`;
 
       return `
       <section class="hero" aria-label="Today at a glance">
-        <div class="checker"></div>
-        ${BM.car('sport', '#ff6a13', 'hero-car')}
-        <div class="hero-in">
+        <div class="hero-top">
           <div class="hero-txt">
-            <div class="hero-eyebrow"><span class="glass-live"><span class="dot live"></span>LIVE</span>${fmtDay(now)}</div>
-            <h1>Ride. Made <em>Bright.</em></h1>
-            <p>${hello}, ${esc(D.me.name.split(' ')[0])}. ${st.inBay} vehicles are on the bays across ${ids.length === 1 ? D.branchById[ids[0]].name : '3 branches'}, ${ready} ${ready === 1 ? 'is' : 'are'} ready for delivery and ${deliveredToday} already left shining today.</p>
-            <div class="hero-actions"><button class="btn btn-primary" data-action="newJob">${BM.icon('plus', 17)}New job card</button><button class="btn" data-action="newAppt">${BM.icon('calendar', 17)}Book appointment</button><button class="btn" data-action="go" data-href="#/jobs">${BM.icon('jobs', 17)}Open work board</button></div>
+            <div class="hero-eyebrow"><span class="live-pill"><span class="dot live"></span>Live</span><span>${fmtDay(now)}</span></div>
+            <h1>${hello}, ${esc(BM.auth.user().first)}</h1>
+            <p>${st.inBay} ${st.inBay === 1 ? 'vehicle' : 'vehicles'} on the bays ${where} &nbsp;·&nbsp; ${ready} ready for delivery &nbsp;·&nbsp; ${deliveredToday} delivered today</p>
           </div>
-          <div class="hero-stats">
-            <div class="hstat"><b data-count="${todayTot}" data-fmt="inrC">0</b><span>Billed today</span></div>
-            <div class="hstat"><b data-count="${st.inBay}" data-fmt="int">0</b><span>On the bays</span></div>
-            <div class="hstat"><b data-count="${ready}" data-fmt="int">0</b><span>Ready to deliver</span></div>
-            <div class="hstat"><b data-count="4.8" data-fmt="d1">0</b><span>Avg. rating</span></div>
-          </div>
+          <div class="hero-actions"><button class="btn btn-primary" data-action="newJob">${BM.icon('plus', 17)}New job card</button><button class="btn" data-action="newAppt">${BM.icon('calendar', 17)}Book appointment</button><button class="btn" data-action="go" data-href="#/jobs">${BM.icon('jobs', 17)}Open work board</button></div>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><span class="hs-l">${BM.icon('rupee', 15)}Billed today</span><b data-count="${todayTot}" data-fmt="inrC">0</b><small>${esc(scope)}</small></div>
+          <div class="hstat"><span class="hs-l">${BM.icon('wrench', 15)}On the bays</span><b><span data-count="${st.inBay}" data-fmt="int">0</span><small>of ${st.bays}</small></b><div class="bar thin" role="img" aria-label="${st.util}% of bays in use"><i style="width:${st.util}%"></i></div></div>
+          <div class="hstat"><span class="hs-l">${BM.icon('truck', 15)}Ready to deliver</span><b data-count="${ready}" data-fmt="int">0</b><small>Awaiting pickup</small></div>
+          <div class="hstat"><span class="hs-l">${BM.icon('star', 15)}Avg. rating</span><b data-count="4.8" data-fmt="d1">0</b><small>Customer feedback</small></div>
         </div>
       </section>
 

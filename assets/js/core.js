@@ -1,5 +1,6 @@
 /* BRITEMAKERS ERP — core: namespace, state, formatters, icons, avatars, vehicle art */
-window.BM = { pages: {}, actions: {}, data: {}, ui: {}, charts: {}, state: {}, util: {} };
+/* auth starts closed: until auth.js signs someone in, nobody counts as staff */
+window.BM = { pages: {}, actions: {}, data: {}, ui: {}, charts: {}, state: {}, util: {}, auth: { isStaff: () => false } };
 
 (function (BM) {
   'use strict';

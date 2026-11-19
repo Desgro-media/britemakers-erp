@@ -5,6 +5,7 @@
   const D = BM.data, ui = BM.ui, C = BM.charts, S = BM.state, $ = BM.$;
   let f = 'all', q = '', limit = 16;
   const ST = { paid: ['Paid', 'ok'], partial: ['Partially paid', 'warn'], pending: ['Pending', 'info'], overdue: ['Overdue', 'bad'] };
+  BM.invStatus = ST;   // label + badge colour per invoice status, shared with the client portal
   const list = () => BM.sel.invoices().filter((i) => (f === 'all' || i.status === f) && (!q || (i.id + D.custById[i.custId].name + D.vehById[i.vehId].plate).toLowerCase().includes(q)));
 
   const row = (i) => {

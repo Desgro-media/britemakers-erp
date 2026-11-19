@@ -27,6 +27,12 @@
   ui.field = (label, control, full) => `<div class="field ${full ? 'full' : ''}"><label>${esc(label)}</label>${control}</div>`;
   ui.opts = (arr, sel) => arr.map((o) => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(l)}</option>`; }).join('');
 
+  /* overlay roots (scrim, toasts, tooltip) live outside any screen so sign-in, the client portal and the ERP all share them */
+  ui.mountOverlays = () => {
+    const o = $('#overlays');
+    if (o && !$('#toasts')) o.innerHTML = '<div id="scrim2" class="overlay-scrim" style="pointer-events:none"></div><div id="toasts" aria-live="polite"></div><div id="gtip" class="gtip" role="tooltip"></div>';
+  };
+
   /* ---------- count-up ---------- */
   const FMT = { inr, inrC, num, pct: (v) => v.toFixed(1) + '%', int: (v) => String(Math.round(v)), d1: (v) => v.toFixed(1), d2: (v) => v.toFixed(2) };
   ui.countUp = (root = document) => {
@@ -131,7 +137,7 @@
   const cmdk = {
     el: null, sel: 0, items: [],
     open() {
-      if (cmdk.el) return;
+      if (cmdk.el || !BM.auth.isStaff()) return;   // the palette searches every customer, job and invoice — staff only
       const el = document.createElement('div'); el.className = 'cmdk'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Command palette');
       el.innerHTML = `<div class="cmdk-in">${BM.icon('search', 20)}<input type="text" placeholder="Search customers, job cards, invoices — or jump anywhere" aria-label="Search"/><span class="kbd">Esc</span></div><div class="cmdk-list"></div><div class="cmdk-f"><span>↑↓ navigate</span><span>↵ open</span><span>Esc close</span></div>`;
       $('#overlays').appendChild(el); cmdk.el = el; stack.push(cmdk); syncScrim();
@@ -185,8 +191,9 @@
 
   document.addEventListener('keydown', (e) => {
     const typing = /INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '');
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdk.el ? cmdk.close() : cmdk.open(); }
-    else if (e.key === '/' && !typing && !cmdk.el) { e.preventDefault(); cmdk.open(); }
+    const staff = BM.auth.isStaff();
+    if (staff && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdk.el ? cmdk.close() : cmdk.open(); }
+    else if (staff && e.key === '/' && !typing && !cmdk.el) { e.preventDefault(); cmdk.open(); }
     else if (e.key === 'Escape') { if (!ui.closeTop()) $$('.dd.open').forEach((d) => d.classList.remove('open')); }
   });
   document.addEventListener('click', (e) => { if (e.target.id === 'scrim2') ui.closeTop(); });
