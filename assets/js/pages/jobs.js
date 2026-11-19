@@ -95,6 +95,18 @@
     else ui.toast(`${j.id} moved to ${D.statusById[status].label}`, { sub: `${veh(j).make} ${veh(j).model}`, icon: 'check' });
   };
   const ensureChecks = (j) => { if (!j.checked) { const n = D.checklistFor(j).length; j.checked = Array.from({ length: n }, (_, i) => i < j.doneChecks); } return j.checked; };
+  BM.jobChecks = ensureChecks;   // shared with the client portal so both show the same work steps
+
+  /* what happened on a job, oldest first — used by the job drawer and the client portal */
+  BM.jobEvents = (j) => {
+    const idx = D.STATUS.findIndex((s) => s.id === j.status), created = j.created;
+    return [['Vehicle checked in', created],
+      ...(idx >= 1 ? [['Pre-work inspection completed', new Date(+created + 45 * 60000)]] : []),
+      ...(idx >= 2 ? [[j.bay ? 'Work started on Bay ' + j.bay : 'Work started', new Date(+created + 110 * 60000)]] : []),
+      ...(idx >= 3 ? [['Moved to quality check', new Date(Date.now() - 40 * 60000)]] : []),
+      ...(idx >= 4 ? [['Marked ready for delivery', new Date(Date.now() - 18 * 60000)]] : []),
+      ...(idx >= 5 ? [['Delivered to customer', j.deliveredAt]] : [])];
+  };
 
   /* ---------- job drawer ---------- */
   function drawerBody(j) {
@@ -102,7 +114,7 @@
     const items = D.checklistFor(j), chk = ensureChecks(j);
     const sub = D.jobTotal(j), gst = Math.round(sub * 0.18), total = sub + gst, due = Math.max(0, total - Math.round(j.advance * 1.18));
     const created = j.created;
-    const events = [['Vehicle checked in', created, false], ...(idx >= 1 ? [['Pre-work inspection completed', new Date(+created + 45 * 60000), false]] : []), ...(idx >= 2 ? [['Work started on Bay ' + (j.bay || '—'), new Date(+created + 110 * 60000), false]] : []), ...(idx >= 3 ? [['Moved to quality check', new Date(Date.now() - 40 * 60000), false]] : []), ...(idx >= 4 ? [['Marked ready for delivery', new Date(Date.now() - 18 * 60000), false]] : []), ...(idx >= 5 ? [['Delivered to customer', j.deliveredAt, false]] : [])];
+    const events = BM.jobEvents(j);
     const photosAfter = j.progress >= 95;
     return `
       <div class="card" style="background:var(--surface-2);box-shadow:none;margin-bottom:20px"><div class="row" style="gap:16px;align-items:center"><div style="width:150px;flex:none">${BM.car(v.shape, v.color)}</div><div class="grow"><div class="row between" style="margin-bottom:4px"><h3 style="font-size:18px;font-weight:800;letter-spacing:-.02em">${esc(v.make)} ${esc(v.model)}</h3>${ui.statusBadge(j.status)}</div><div class="row wrap" style="gap:8px">${ui.plate(v.plate)}<span class="tag"><i style="background:${v.color};border:1px solid var(--line-2)"></i>${esc(v.colorName)} · ${v.year}</span>${ui.branchTag(j.branch)}${j.bay ? `<span class="tag">Bay ${j.bay}</span>` : ''}</div></div></div></div>

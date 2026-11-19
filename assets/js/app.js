@@ -47,14 +47,15 @@
 
   /* ---------- shell ---------- */
   function sidebar() {
+    const me = BM.auth.user();
     return `<div class="brand"><div class="logo-mark"><span>BM</span></div><div class="brand-txt"><b>Brite<em>makers</em></b><small>ERP · Command Centre</small></div></div>
     <nav class="nav" aria-label="Main">${BM.nav.map((g) => `<div class="nav-label">${g.label}</div>${g.items.map((n) => `<a class="nav-item" href="${n.href}" data-id="${n.id}" title="${esc(n.label)}">${BM.icon(n.icon, 19)}<span>${n.label}</span>${n.badge ? `<em class="nav-badge ${n.hot ? 'hot' : ''}" data-badge="${n.id}" style="font-style:normal"></em>` : ''}</a>`).join('')}`).join('')}</nav>
     <div class="sb-promo"><div class="checker"></div><h4>Year-End Shine Fest</h4><p>46 bookings across 3 branches · offer ends 31 Dec</p></div>
-    <div class="sb-user">${BM.avatar(D.me.name, 36)}<div class="who grow"><b class="ellipsis">${esc(D.me.name)}</b><small>${esc(D.me.role)}</small></div><button class="btn btn-ghost btn-icon btn-sm" data-action="toast" data-msg="Signed out (demo)" data-sub="This is a front-end demo — no real session." aria-label="Sign out">${BM.icon('logout', 16)}</button></div>`;
+    <div class="sb-user">${BM.avatar(me.name, 36)}<div class="who grow"><b class="ellipsis">${esc(me.name)}</b><small class="ellipsis" style="display:block">${esc(me.title)}</small></div><button class="btn btn-ghost btn-icon btn-sm" data-action="signOut" title="Sign out" aria-label="Sign out">${BM.icon('logout', 16)}</button></div>`;
   }
   const branchLabel = () => (S.branch === 'all' ? 'All branches' : D.branchById[S.branch].name);
   function topbar() {
-    const unread = D.notifications.filter((n) => n.unread).length;
+    const unread = D.notifications.filter((n) => n.unread).length, me = BM.auth.user();
     return `<button class="btn btn-ghost btn-icon menu-btn" data-action="toggleNav" aria-label="Open menu">${BM.icon('menu', 20)}</button>
     <button class="btn btn-ghost btn-icon collapse-btn" data-action="toggleCollapse" aria-label="Collapse sidebar">${BM.icon('panel', 19)}</button>
     <div class="crumbs"><span class="hide-sm">Britemakers</span>${BM.icon('right', 14)}<b id="crumb">Dashboard</b></div>
@@ -75,13 +76,13 @@
       <div class="dd" id="ddNotif"><button class="btn btn-icon" data-dd aria-label="Notifications">${BM.icon('bell', 18)}${unread ? '<span class="dot-badge"></span>' : ''}</button>
         <div class="dd-panel notif-panel"><div class="notif-h"><span>Notifications</span><button class="link" data-action="markRead">Mark all read</button></div>
           <div class="notif-list">${D.notifications.map((n) => `<div class="notif ${n.unread ? 'unread' : ''}"><span class="t-ic">${BM.icon(n.icon, 17)}</span><div class="grow"><b>${esc(n.title)}</b><small>${esc(n.sub)}</small><small>${relTime(new Date(Date.now() - n.t * 60000))}</small></div></div>`).join('')}</div></div></div>
-      <div class="dd" id="ddUser"><button class="btn btn-icon" data-dd aria-label="Account" style="padding:0">${BM.avatar(D.me.name, 34)}</button>
-        <div class="dd-panel"><div class="dd-h">${esc(D.me.name)}</div>
+      <div class="dd" id="ddUser"><button class="btn btn-icon" data-dd aria-label="Account" style="padding:0">${BM.avatar(me.name, 34)}</button>
+        <div class="dd-panel"><div class="dd-h">${esc(me.name)}</div>
           <button class="dd-i" data-action="go" data-href="#/settings">${BM.icon('settings', 17)}Settings</button>
           <button class="dd-i" data-action="openCmdk">${BM.icon('search', 17)}Command palette<span class="kbd">Ctrl K</span></button>
           <button class="dd-i" data-action="toast" data-msg="Shortcuts: Ctrl+K search · / quick find · Esc close" data-icon="help">${BM.icon('help', 17)}Keyboard shortcuts</button>
           <div class="dd-sep"></div>
-          <button class="dd-i" data-action="toast" data-msg="Signed out (demo)" data-sub="This is a front-end demo — no real session.">${BM.icon('logout', 17)}Sign out</button></div></div>
+          <button class="dd-i" data-action="signOut">${BM.icon('logout', 17)}Sign out</button></div></div>
     </div>`;
   }
   function updateBadges() {
@@ -89,7 +90,6 @@
   }
   function mountShell() {
     $('#app').innerHTML = `<aside class="sidebar" id="sidebar">${sidebar()}</aside><div class="scrim" data-action="toggleNav"></div><div class="main"><header class="topbar" id="topbar">${topbar()}</header><main class="page" id="page" tabindex="-1"></main></div>`;
-    $('#overlays').innerHTML = `<div id="scrim2" class="overlay-scrim" style="pointer-events:none"></div><div id="toasts" aria-live="polite"></div><div id="gtip" class="gtip" role="tooltip"></div>`;
     BM.applyTheme(); updateBadges();
   }
   Object.assign(BM.actions, {
@@ -136,14 +136,31 @@
   }
   BM.refresh = () => render(true);
   BM.refreshCharts = () => { if (current) render(true); };
-  window.addEventListener('hashchange', () => { ui.drawer.close(true); ui.modal.close(true); render(false); });
+  window.addEventListener('hashchange', () => { if (!started) return; ui.drawer.close(true); ui.modal.close(true); render(false); });
 
-  document.addEventListener('DOMContentLoaded', () => {
-    mountShell();
-    render(false);
-    let queued = false;   // search/filter boxes repaint table bodies — keep labels in sync
-    new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; labelTables($('#page')); }); }).observe($('#page'), { childList: true, subtree: true });
-    // let the splash-free first paint settle, then a gentle hint for the command palette
-    setTimeout(() => ui.toast('Welcome back, Nikhil', { sub: 'Demo workspace · press Ctrl+K to search anything', icon: 'sparkles', ms: 4200 }), 900);
-  });
+  /* ---------- lifecycle: auth.js starts the ERP after a staff sign-in and stops it on sign-out ---------- */
+  let started = false, tableObserver = null, welcomeTimer = null;
+  BM.erp = {
+    start() {
+      if (started) return;
+      started = true;
+      mountShell();
+      render(false);
+      let queued = false;   // search/filter boxes repaint table bodies — keep labels in sync
+      tableObserver = new MutationObserver(() => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false; if (started) labelTables($('#page')); }); });
+      tableObserver.observe($('#page'), { childList: true, subtree: true });
+      // let the first paint settle, then a gentle hint for the command palette
+      welcomeTimer = setTimeout(() => ui.toast(`Welcome back, ${BM.auth.user().first}`, { sub: 'Demo workspace · press Ctrl+K to search anything', icon: 'sparkles', ms: 4200 }), 900);
+    },
+    stop() {
+      if (!started) return;
+      started = false; current = null;
+      clearTimeout(welcomeTimer);
+      if (tableObserver) tableObserver.disconnect();
+      tableObserver = null;
+      BM.charts.cleanup();
+      ui.drawer.close(true); ui.modal.close(true); ui.cmdk.close();
+      const app = $('#app'); app.innerHTML = ''; app.classList.remove('nav-open');
+    },
+  };
 })(window.BM);
